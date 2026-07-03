@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Palette Forge — real color-theory palette generator</title>
+<meta name="description" content="Palette Forge: generate real, algorithmic color palettes from a base color or reference image. WCAG contrast-checked. Export as CSS, Tailwind, or Style Dictionary JSON. No accounts, no cloud save, 100% client-side." />
+<meta name="theme-color" content="#2b2d31" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232b2d31'/%3E%3Ccircle cx='38' cy='42' r='16' fill='%23e8734a'/%3E%3Ccircle cx='64' cy='58' r='16' fill='%23f2b134'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app" class="app">
+
+  <header class="topbar">
+    <h1 class="app-title">Palette Forge</h1>
+    <button id="btn-help" class="icon-btn" aria-label="How this works">?</button>
+  </header>
+
+  <main class="view">
+    <p class="tagline">Real color-theory math, WCAG contrast-checked, exported the way you actually use color.</p>
+
+    <section class="framing-card">
+      <span class="evidence-badge">Honest framing</span>
+      <h2>Read this before you rely on it</h2>
+      <p>This category is already served by excellent, free, mature tools
+        &mdash; <strong>Coolors</strong> and <strong>Adobe Color</strong>
+        chief among them. Market research explicitly called a color-palette
+        generator "better used as a filler item than a flagship" given how
+        saturated and well-served this space already is.</p>
+      <p>Palette Forge exists for catalog/category-diversity value and
+        because it's a genuinely quick, honest, zero-backend build &mdash;
+        not because it's expected to out-compete Coolors. What <em>is</em>
+        real here: the color-wheel math, the WCAG contrast formula, and the
+        export formats. Nothing is faked or approximated.</p>
+      <p><strong>No accounts. No cloud save. No saved-palette history.</strong>
+        Purely static, one-shot generation and export, 100% client-side &mdash;
+        by design, not as a missing feature.</p>
+    </section>
+
+    <section class="input-card">
+      <h2>1. Pick a base color</h2>
+      <div class="input-row">
+        <input id="color-picker" type="color" value="#3366cc" aria-label="Pick a base color" />
+        <input id="hex-input" type="text" inputmode="text" placeholder="#3366cc" value="#3366cc" aria-label="Base color hex value" />
+      </div>
+      <p class="or-divider">or extract from an image</p>
+      <div class="input-row">
+        <label class="file-label" for="image-input">
+          Upload reference image
+          <input id="image-input" type="file" accept="image/*" />
+        </label>
+      </div>
+      <div id="image-preview-wrap" class="image-preview-wrap" hidden>
+        <img id="image-preview" alt="Uploaded reference image" />
+        <p id="extract-status" class="extract-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="input-card">
+      <h2>2. Choose a harmony</h2>
+      <div id="harmony-tabs" class="harmony-tabs" role="tablist" aria-label="Harmony type">
+        <button class="harmony-tab active" data-type="complementary" role="tab" aria-selected="true">Complementary</button>
+        <button class="harmony-tab" data-type="analogous" role="tab" aria-selected="false">Analogous</button>
+        <button class="harmony-tab" data-type="triadic" role="tab" aria-selected="false">Triadic</button>
+        <button class="harmony-tab" data-type="tetradic" role="tab" aria-selected="false">Tetradic</button>
+        <button class="harmony-tab" data-type="monochromatic" role="tab" aria-selected="false">Monochromatic</button>
+      </div>
+    </section>
+
+    <section class="input-card">
+      <h2>3. Your palette</h2>
+      <div id="swatch-grid" class="swatch-grid" aria-label="Generated palette swatches"></div>
+    </section>
+
+    <section class="input-card">
+      <h2>4. Export</h2>
+      <div id="export-tabs" class="export-tabs" role="tablist" aria-label="Export format">
+        <button class="export-tab active" data-format="css" role="tab" aria-selected="true">CSS vars</button>
+        <button class="export-tab" data-format="tailwind" role="tab" aria-selected="false" data-locked="true">Tailwind <span class="lock">🔒</span></button>
+        <button class="export-tab" data-format="style-dictionary" role="tab" aria-selected="false" data-locked="true">Style Dictionary <span class="lock">🔒</span></button>
+      </div>
+      <pre id="export-output" class="export-output" tabindex="0"></pre>
+      <div class="export-actions">
+        <button id="btn-copy" class="btn-secondary">Copy</button>
+        <button id="btn-download" class="btn-secondary">Download</button>
+      </div>
+      <p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="unlock-panel" class="unlock-panel pricing-card">
+      <h2>Unlock the full export bundle</h2>
+      <p>Free forever: CSS custom properties export, complementary harmony.
+        Unlock the <strong>Tailwind config</strong> and
+        <strong>Style Dictionary JSON</strong> exports, plus all 5 harmony
+        types (analogous, triadic, tetradic, monochromatic), with a single
+        one-time purchase &mdash; no subscription, no ads.</p>
+      <button id="btn-buy" class="btn-primary">Unlock full export bundle &mdash; $7</button>
+      <p class="fine-print">Sandbox demo checkout &mdash; no real payment is processed.</p>
+    </section>
+  </main>
+
+  <div id="modal-help" class="modal" hidden>
+    <div class="modal-card">
+      <h2>How this works</h2>
+      <ul>
+        <li>Pick a base color (color picker or hex input), or upload a
+          reference image &mdash; Palette Forge reads its actual pixel data
+          and finds a dominant color via HSL-bucket vibrancy weighting
+          (real image analysis, run entirely in your browser).</li>
+        <li>Choose a harmony type. Each one is real color-wheel math in HSL
+          space: complementary (180&deg; hue rotation), analogous
+          (&plusmn;30&deg;), triadic (120&deg;/240&deg;), tetradic
+          (90&deg;/180&deg;/270&deg;), monochromatic (fixed hue/saturation,
+          varying lightness).</li>
+        <li>Every swatch shows its real WCAG contrast ratio against white
+          and black text, using the actual WCAG 2.x relative-luminance
+          formula &mdash; labeled AA/AAA pass or fail, not approximated.</li>
+        <li>Export as CSS custom properties (free), or unlock Tailwind
+          config + Style Dictionary JSON.</li>
+        <li>Nothing you enter or upload ever leaves your browser. No
+          accounts, no cloud save, no history — this is a one-shot tool by
+          design.</li>
+      </ul>
+      <button id="btn-close-help" class="btn-primary">Got it</button>
+    </div>
+  </div>
+
+  <div id="modal-buy" class="modal" hidden>
+    <div class="modal-card">
+      <h2>Unlock full export bundle</h2>
+      <p>This is a <strong>sandbox demo checkout</strong>. No real payment
+        method is charged &mdash; this simulates what a one-time purchase
+        flow looks like.</p>
+      <div class="buy-summary">
+        <span>Palette Forge &mdash; full export bundle</span>
+        <strong>$7.00</strong>
+      </div>
+
+      <div class="form-row">
+        <label for="card-number">Card number</label>
+        <input id="card-number" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242" />
+        <span id="err-number" class="field-error"></span>
+      </div>
+      <div class="form-row-split">
+        <div class="form-row">
+          <label for="card-expiry">Expiry (MM/YY)</label>
+          <input id="card-expiry" inputmode="numeric" autocomplete="cc-exp" placeholder="12/29" />
+          <span id="err-expiry" class="field-error"></span>
+        </div>
+        <div class="form-row">
+          <label for="card-cvc">CVC</label>
+          <input id="card-cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" />
+          <span id="err-cvc" class="field-error"></span>
+        </div>
+      </div>
+
+      <p class="fine-print">Test it: <code>4000 0000 0000 0002</code> always
+        declines (sandbox test card). Any other Luhn-valid number succeeds.</p>
+
+      <div id="payment-status" class="payment-status" role="status" aria-live="polite"></div>
+
+      <div class="modal-actions">
+        <button id="btn-confirm-buy" class="btn-primary">Confirm demo purchase</button>
+        <button id="btn-cancel-buy" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
